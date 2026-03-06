@@ -6,7 +6,12 @@ plugins {
 
 group = 'com.gym_project'
 version = '0.0.1-SNAPSHOT'
-sourceCompatibility = '17'
+
+java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(21))
+    }
+}
 
 repositories {
     mavenCentral()
@@ -25,11 +30,11 @@ dependencies {
     implementation "org.springframework:spring-orm:$springVersion"
     implementation "org.springframework:spring-jdbc:$springVersion"
 
-    // Spring Web (REST Controllers)
+    // Spring Web
     implementation "org.springframework:spring-web:$springVersion"
     implementation "org.springframework:spring-webmvc:$springVersion"
 
-    // Spring AOP (logging / transaction interceptors)
+    // Spring AOP
     implementation "org.springframework:spring-aop:$springVersion"
 
     // Spring Security
