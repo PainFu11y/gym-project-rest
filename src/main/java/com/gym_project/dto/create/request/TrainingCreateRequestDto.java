@@ -1,4 +1,4 @@
-package com.gym_project.dto.create;
+package com.gym_project.dto.create.request;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -11,7 +11,7 @@ import java.time.LocalDate;
 
 @Getter
 @Setter
-public class TrainingCreateDto {
+public class TrainingCreateRequestDto {
 
     @NotBlank(message = "Trainee username is required")
     private String traineeUsername;
