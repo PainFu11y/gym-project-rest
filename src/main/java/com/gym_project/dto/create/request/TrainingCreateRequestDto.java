@@ -19,10 +19,6 @@ public class TrainingCreateRequestDto {
     @NotBlank(message = "Trainer username is required")
     private String trainerUsername;
 
-    //TODO: review the creation functionality without training type
-    @NotNull(message = "Training type ID is required")
-    private Long trainingTypeId;
-
     @NotBlank(message = "Training name is required")
     @Size(max = 100, message = "Training name cannot be longer than 100 characters")
     private String trainingName;

@@ -69,6 +69,10 @@ dependencies {
     implementation 'org.slf4j:slf4j-api:2.0.9'
     implementation 'ch.qos.logback:logback-classic:1.4.11'
 
+    // MapStruct
+    implementation 'org.mapstruct:mapstruct:1.5.5.Final'
+    annotationProcessor 'org.mapstruct:mapstruct-processor:1.5.5.Final'
+
     // Tests
     testImplementation 'org.junit.jupiter:junit-jupiter:5.10.0'
     testImplementation "org.springframework:spring-test:$springVersion"
