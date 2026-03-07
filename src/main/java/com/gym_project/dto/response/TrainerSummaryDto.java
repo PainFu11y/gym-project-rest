@@ -1,21 +1,17 @@
 package com.gym_project.dto.response;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.ToString;
-
-import java.util.Set;
 
 @Getter
 @Setter
-@ToString
-public class TrainerResponseDto {
-
+@NoArgsConstructor
+@AllArgsConstructor
+public class TrainerSummaryDto {
+    private String username;
     private String firstName;
     private String lastName;
-    private boolean active;
-
     private String specialization;
-
-    private Set<String> traineeUsernames;
 }
