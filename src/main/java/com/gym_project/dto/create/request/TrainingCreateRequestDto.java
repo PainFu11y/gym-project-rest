@@ -19,6 +19,7 @@ public class TrainingCreateRequestDto {
     @NotBlank(message = "Trainer username is required")
     private String trainerUsername;
 
+    //TODO: review the creation functionality without training type
     @NotNull(message = "Training type ID is required")
     private Long trainingTypeId;
 

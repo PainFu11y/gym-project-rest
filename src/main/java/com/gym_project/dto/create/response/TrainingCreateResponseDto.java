@@ -9,7 +9,7 @@ import java.time.LocalDate;
 @Getter
 @Setter
 @ToString
-public class TrainingResponseDto {
+public class TrainingCreateResponseDto {
     private Long id;
 
     private String traineeUsername;
