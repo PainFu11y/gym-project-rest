@@ -1,4 +1,4 @@
-package com.gym_project.dto.response;
+package com.gym_project.dto.create.response;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -9,7 +9,7 @@ import java.time.LocalDate;
 @Getter
 @Setter
 @ToString
-public class TrainingResponseDto {
+public class TrainingCreateResponseDto {
     private Long id;
 
     private String traineeUsername;

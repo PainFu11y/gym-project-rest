@@ -1,4 +1,4 @@
-package com.gym_project.dto.create;
+package com.gym_project.dto.create.request;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -10,7 +10,7 @@ import java.time.LocalDate;
 
 @Getter
 @Setter
-public class TraineeCreateDto {
+public class TraineeCreateRequestDto {
 
     @NotBlank(message = "First Name is required")
     @Size(max = 50, message = "First Name cannot be longer than 50 characters")

@@ -17,8 +17,9 @@ import java.util.Set;
 @AllArgsConstructor
 public class Trainer extends User{
 
-    @Column(nullable = false)
-    private String specialization;
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "training_type_id")
+    private TrainingType specialization;
 
     @OneToMany(mappedBy = "trainer",
             cascade = CascadeType.ALL,
