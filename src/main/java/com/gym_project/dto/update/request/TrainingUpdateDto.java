@@ -1,4 +1,4 @@
-package com.gym_project.dto.update;
+package com.gym_project.dto.update.request;
 
 import lombok.Getter;
 import lombok.Setter;
