@@ -116,4 +116,13 @@ public class TrainerRepositoryImpl implements TrainerRepository {
                 .setParameter("username", trainerUsername)
                 .getResultList();
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Trainer> findTrainersByUsernames(List<String> usernames) {
+        return entityManager.createQuery(
+                        "SELECT tr FROM Trainer tr WHERE tr.username IN :usernames", Trainer.class)
+                .setParameter("usernames", usernames)
+                .getResultList();
+    }
 }
