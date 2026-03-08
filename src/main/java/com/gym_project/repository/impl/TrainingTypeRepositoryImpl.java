@@ -22,4 +22,11 @@ public class TrainingTypeRepositoryImpl implements TrainingTypeRepository {
     public Optional<TrainingType> findById(Long id) {
         return Optional.ofNullable(entityManager.find(TrainingType.class, id));
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<TrainingType> findAll() {
+        return entityManager.createQuery("SELECT t FROM TrainingType t", TrainingType.class)
+                .getResultList();
+    }
 }
