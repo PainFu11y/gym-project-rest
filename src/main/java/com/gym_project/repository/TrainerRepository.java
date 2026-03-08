@@ -31,4 +31,7 @@ public interface TrainerRepository {
     List<String> findUsernamesStartingWith(String base);
 
     List<Trainee> findTraineesByTrainerUsername(String trainerUsername);
+
+    List<Trainer> findTrainersByUsernames(List<String> usernames);
+
 }
