@@ -24,7 +24,7 @@ public interface TraineeService {
 
     void deactivateStatus(String username, Boolean isActive);
 
-    List<TrainingResponseDto> getTrainings(TraineeTrainingFilterResponseDto filter);
+    List<TrainingResponseDto> getTraineeTrainings(TraineeTrainingFilterResponseDto filter);
 
     TraineeResponseDto validateCredentials(String username, String password);
 
