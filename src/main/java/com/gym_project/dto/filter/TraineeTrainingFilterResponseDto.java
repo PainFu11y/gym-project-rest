@@ -9,7 +9,8 @@ import java.time.LocalDate;
 
 @Getter
 @Setter
-public class TrainerTrainingFilterDto {
+public class TraineeTrainingFilterResponseDto {
+
     @NotBlank(message = "Username is required")
     private String username;
 
@@ -19,5 +20,7 @@ public class TrainerTrainingFilterDto {
     @PastOrPresent(message = "To date cannot be in the future")
     private LocalDate toDate;
 
-    private String traineeName;
+    private String trainerName;
+
+    private String trainingTypeName;
 }

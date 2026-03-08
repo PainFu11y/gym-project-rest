@@ -1,16 +1,13 @@
 package com.gym_project.repository.impl;
 
-import com.gym_project.dto.filter.TraineeTrainingFilterDto;
 import com.gym_project.entity.Trainee;
 import com.gym_project.entity.Trainer;
-import com.gym_project.entity.Training;
 import com.gym_project.repository.TraineeRepository;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
