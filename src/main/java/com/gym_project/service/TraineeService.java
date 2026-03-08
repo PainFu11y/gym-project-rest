@@ -1,6 +1,7 @@
 package com.gym_project.service;
 
 import com.gym_project.dto.create.request.TraineeCreateRequestDto;
+import com.gym_project.dto.create.response.TraineeCreateResponseDto;
 import com.gym_project.dto.filter.TraineeTrainingFilterResponseDto;
 import com.gym_project.dto.response.TraineeResponseDto;
 import com.gym_project.dto.response.TrainerResponseDto;
@@ -11,7 +12,7 @@ import java.util.List;
 
 public interface TraineeService {
 
-    TraineeCreateRequestDto create(TraineeCreateRequestDto dto);
+    TraineeCreateResponseDto create(TraineeCreateRequestDto dto);
 
     TraineeResponseDto getByUsername(String username);
 
