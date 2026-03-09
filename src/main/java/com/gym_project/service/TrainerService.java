@@ -23,7 +23,5 @@ public interface TrainerService {
 
     List<TrainingResponseDto> getTrainerTrainings(TrainerTrainingFilterDto dto);
 
-    void activateStatus(String username, Boolean isActive);
-
-    void deactivateStatus(String username, Boolean isActive);
+    void toggleStatus(String username);
 }
