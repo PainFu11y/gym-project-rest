@@ -87,6 +87,20 @@ public class TraineeRepositoryImpl implements TraineeRepository {
         }
     }
 
+    @Override
+    @Transactional
+    public void toggleStatus(String username) {
+
+        Trainee trainee = entityManager.createQuery(
+                        "SELECT t FROM Trainee t WHERE t.username = :username", Trainee.class)
+                .setParameter("username", username)
+                .getSingleResult();
+
+        trainee.setActive(!trainee.isActive());
+
+        entityManager.merge(trainee);
+    }
+
     @Transactional(readOnly = true)
     public List<Trainer> findTrainersByTraineeUsername(String traineeUsername) {
         return entityManager.createQuery(

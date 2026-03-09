@@ -34,4 +34,5 @@ public interface TrainerRepository {
 
     List<Trainer> findTrainersByUsernames(List<String> usernames);
 
+    void toggleStatus(String username);
 }

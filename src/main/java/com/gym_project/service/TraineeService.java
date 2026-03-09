@@ -22,9 +22,7 @@ public interface TraineeService {
 
     void deleteByUsername(String username);
 
-    void activateStatus(String username, Boolean isActive);
-
-    void deactivateStatus(String username, Boolean isActive);
+    void toggleStatus(String username);
 
     List<TrainingResponseDto> getTraineeTrainings(TraineeTrainingFilterResponseDto filter);
 

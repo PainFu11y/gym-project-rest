@@ -24,4 +24,6 @@ public interface TraineeRepository {
     void deleteByUsername(String username);
 
     void changePassword(String username, String newPassword);
+
+    void toggleStatus(String username);
 }

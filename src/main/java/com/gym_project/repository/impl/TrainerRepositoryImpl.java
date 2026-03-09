@@ -125,4 +125,18 @@ public class TrainerRepositoryImpl implements TrainerRepository {
                 .setParameter("usernames", usernames)
                 .getResultList();
     }
+
+    @Override
+    @Transactional
+    public void toggleStatus(String username) {
+
+        Trainer trainer = entityManager.createQuery(
+                        "SELECT t FROM Trainer t WHERE t.username = :username", Trainer.class)
+                .setParameter("username", username)
+                .getSingleResult();
+
+        trainer.setActive(!trainer.isActive());
+
+        entityManager.merge(trainer);
+    }
 }
