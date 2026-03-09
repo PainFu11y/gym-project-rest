@@ -8,7 +8,7 @@ import java.time.LocalDate;
 
 @Getter
 @Setter
-public class TraineeTrainingsRequestDto {
+public class TraineeTrainingsFilterRequestDto {
 
     @NotBlank(message = "Username is required")
     private String username;
