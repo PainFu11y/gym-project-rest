@@ -22,6 +22,7 @@ import com.gym_project.repository.TrainingRepository;
 import com.gym_project.service.TraineeService;
 import com.gym_project.utils.PasswordGenerator;
 import com.gym_project.utils.UsernameGenerator;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 import javax.transaction.Transactional;
 import java.util.List;
@@ -71,6 +72,7 @@ public class TraineeServiceImpl implements TraineeService {
     }
 
     @Override
+    @PreAuthorize("#username == authentication.name")
     public TraineeResponseDto getByUsername(String username) {
 
         Trainee trainee = traineeRepository.findByUsername(username)
@@ -81,6 +83,7 @@ public class TraineeServiceImpl implements TraineeService {
 
     @Override
     @Transactional
+    @PreAuthorize("#username == authentication.name")
     public TraineeResponseDto update(TraineeUpdateRequestDto dto) {
 
         Trainee trainee = traineeRepository.findByUsername(dto.getUsername())
@@ -95,12 +98,14 @@ public class TraineeServiceImpl implements TraineeService {
 
     @Override
     @Transactional
+    @PreAuthorize("#username == authentication.name")
     public void deleteByUsername(String username) {
         traineeRepository.deleteByUsername(username);
     }
 
     @Override
     @Transactional
+    @PreAuthorize("#username == authentication.name")
     public void toggleStatus(String username) {
         traineeRepository.toggleStatus(username);
     }
@@ -115,6 +120,7 @@ public class TraineeServiceImpl implements TraineeService {
 
 
     @Override
+    @PreAuthorize("#username == authentication.name")
     public TraineeResponseDto validateCredentials(LoginRequestDto dto) {
 
         Trainee trainee = traineeRepository.findByUsername(dto.getUsername())
@@ -128,6 +134,7 @@ public class TraineeServiceImpl implements TraineeService {
     }
 
     @Override
+    @PreAuthorize("#username == authentication.name")
     public List<TrainerResponseDto> getTrainers(String username) {
 
         List<Trainer> trainers = trainerRepository
@@ -141,6 +148,7 @@ public class TraineeServiceImpl implements TraineeService {
 
     @Override
     @Transactional
+    @PreAuthorize("#username == authentication.name")
     public List<TrainerSummaryDto> updateTrainerList(UpdateTraineeTrainerListRequestDto dto) {
 
         Trainee trainee = traineeRepository.findByUsername(dto.getTraineeUsername())
