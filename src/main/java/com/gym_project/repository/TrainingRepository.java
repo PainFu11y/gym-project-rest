@@ -1,9 +1,8 @@
 package com.gym_project.repository;
 
 import com.gym_project.dto.request.TraineeTrainingsFilterRequestDto;
+import com.gym_project.dto.request.TrainerTrainingsRequestDto;
 import com.gym_project.entity.Training;
-import com.gym_project.entity.Trainee;
-import com.gym_project.entity.Trainer;
 
 import java.util.List;
 
@@ -15,5 +14,5 @@ public interface TrainingRepository {
 
     List<Training> findByTraineeFilter(TraineeTrainingsFilterRequestDto trainee);
 
-    List<Training> findByTrainer(Trainer trainer);
+    List<Training> findByTrainerFilter(TrainerTrainingsRequestDto trainer);
 }
