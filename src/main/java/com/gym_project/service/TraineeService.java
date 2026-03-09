@@ -2,6 +2,7 @@ package com.gym_project.service;
 
 import com.gym_project.dto.create.request.TraineeCreateRequestDto;
 import com.gym_project.dto.create.response.TraineeCreateResponseDto;
+import com.gym_project.dto.request.LoginRequestDto;
 import com.gym_project.dto.request.TraineeTrainingsFilterRequestDto;
 import com.gym_project.dto.response.TraineeResponseDto;
 import com.gym_project.dto.response.TrainerResponseDto;
@@ -26,7 +27,7 @@ public interface TraineeService {
 
     List<TrainingResponseDto> getTraineeTrainings(TraineeTrainingsFilterRequestDto filter);
 
-    TraineeResponseDto validateCredentials(String username, String password);
+    TraineeResponseDto validateCredentials(LoginRequestDto dto);
 
     List<TrainerResponseDto> getTrainers(String username);
 
