@@ -21,7 +21,7 @@ public interface TrainerService {
 
     List<TrainerSummaryDto> getUnassignedActiveTrainersByTraineeUsername(String username);
 
-    List<TrainingResponseDto> getTrainerTrainings(TrainerTrainingFilterDto dto);
+    List<TrainingResponseDto> getTrainerTrainingsByFilter(TrainerTrainingFilterDto dto);
 
     void toggleStatus(String username);
 }
