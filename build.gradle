@@ -1,6 +1,6 @@
 plugins {
     id 'java'
-    id 'application'
+    id 'war'
     id 'jacoco'
 }
 
@@ -72,6 +72,9 @@ dependencies {
     // MapStruct
     implementation 'org.mapstruct:mapstruct:1.5.5.Final'
     annotationProcessor 'org.mapstruct:mapstruct-processor:1.5.5.Final'
+
+    // Servlet API
+    compileOnly 'javax.servlet:javax.servlet-api:4.0.1'
 
     // Tests
     testImplementation 'org.junit.jupiter:junit-jupiter:5.10.0'
