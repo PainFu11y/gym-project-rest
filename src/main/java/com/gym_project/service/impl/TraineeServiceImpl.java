@@ -23,12 +23,14 @@ import com.gym_project.service.TraineeService;
 import com.gym_project.utils.PasswordGenerator;
 import com.gym_project.utils.UsernameGenerator;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+@Service
 public class TraineeServiceImpl implements TraineeService {
     private final TraineeRepository traineeRepository;
     private final TrainerRepository trainerRepository;
