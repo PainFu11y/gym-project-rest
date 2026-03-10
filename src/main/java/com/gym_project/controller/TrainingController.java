@@ -6,11 +6,16 @@ import com.gym_project.service.TrainingService;
 
 import javax.validation.Valid;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping(RoutConstants.BASE_URL + RoutConstants.TRAININGS)
+@Api(tags = "Training Management")
 public class TrainingController {
 
     private final TrainingService trainingService;
@@ -20,6 +25,12 @@ public class TrainingController {
     }
 
     @PostMapping
+    @ApiOperation(value = "Create a new training session")
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "Training created successfully"),
+            @ApiResponse(code = 400, message = "Invalid request body"),
+            @ApiResponse(code = 404, message = "Trainee or trainer not found")
+    })
     public ResponseEntity<Void> create(
             @Valid @RequestBody TrainingCreateRequestDto dto) {
 
