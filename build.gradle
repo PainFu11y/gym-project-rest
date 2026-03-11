@@ -82,6 +82,8 @@ dependencies {
     implementation 'jakarta.xml.bind:jakarta.xml.bind-api:2.3.3'
     implementation 'org.glassfish.jaxb:jaxb-runtime:2.3.3'
 
+    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.15.3'
+
     // Tests
     testImplementation 'org.junit.jupiter:junit-jupiter:5.10.0'
     testImplementation "org.springframework:spring-test:$springVersion"
