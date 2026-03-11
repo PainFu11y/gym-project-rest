@@ -12,12 +12,15 @@ import com.gym_project.dto.update.response.TrainerUpdateResponseDto;
 import com.gym_project.entity.Trainer;
 import com.gym_project.entity.Training;
 import com.gym_project.entity.TrainingType;
+import com.gym_project.repository.TraineeRepository;
 import com.gym_project.repository.TrainerRepository;
 import com.gym_project.repository.TrainingRepository;
 import com.gym_project.repository.TrainingTypeRepository;
 import com.gym_project.service.TrainerService;
 import com.gym_project.mapper.TrainerMapper;
 import com.gym_project.mapper.TrainingMapper;
+import com.gym_project.utils.PasswordGenerator;
+import com.gym_project.utils.UsernameGenerator;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -52,11 +55,16 @@ public class TrainerServiceImpl implements TrainerService {
         trainer.setLastName(dto.getLastName());
         trainer.setActive(true);
 
+        String base = dto.getFirstName() + "." + dto.getLastName();
+        List<String> existingUsernames = trainerRepository.findUsernamesStartingWith(base);
+
         TrainingType trainingType = trainingTypeRepository.findById(dto.getTrainingTypeId())
                 .orElseThrow(() -> new RuntimeException(
                         "Training type not found with id: " + dto.getTrainingTypeId()
                 ));
         trainer.setSpecialization(trainingType);
+        trainer.setUsername(UsernameGenerator.generate(trainer.getFirstName(), trainer.getLastName(), existingUsernames));
+        trainer.setPassword(PasswordGenerator.generate());
 
         trainerRepository.save(trainer);
         return trainerMapper.toCreateResponseDto(trainer);
