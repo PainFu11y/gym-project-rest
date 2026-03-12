@@ -28,8 +28,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -75,6 +75,7 @@ public class TraineeServiceImpl implements TraineeService {
     }
 
     @Override
+    @Transactional
     @PreAuthorize("#username == authentication.name")
     public TraineeResponseDto getByUsername(String username) {
         Trainee trainee = traineeRepository.findByUsername(username)
@@ -107,6 +108,7 @@ public class TraineeServiceImpl implements TraineeService {
     }
 
     @Override
+    @Transactional
     public List<TrainingResponseDto> getTraineeTrainings(TraineeTrainingsFilterRequestDto filter) {
         List<Training> trainings = trainingRepository.findByTraineeFilter(filter);
         return trainingMapper.toResponseDtoList(trainings);
@@ -149,7 +151,7 @@ public class TraineeServiceImpl implements TraineeService {
                 .toList();
 
         List<Trainer> trainers = trainerRepository.findTrainersByUsernames(trainerUsernames);
-        trainee.setTrainers(Set.copyOf(trainers));
+        trainee.setTrainers(new HashSet<>(trainers));
         traineeRepository.update(trainee);
 
         return trainers.stream()
