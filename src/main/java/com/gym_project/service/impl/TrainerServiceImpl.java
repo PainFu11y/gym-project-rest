@@ -20,12 +20,14 @@ import com.gym_project.repository.TrainingTypeRepository;
 import com.gym_project.service.TrainerService;
 import com.gym_project.utils.PasswordGenerator;
 import com.gym_project.utils.UsernameGenerator;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+@Slf4j
 @Service
 public class TrainerServiceImpl implements TrainerService {
 
@@ -52,24 +54,29 @@ public class TrainerServiceImpl implements TrainerService {
     @Override
     @Transactional
     public TrainerCreateResponseDto create(TrainerCreateRequestDto dto) {
-        Trainer trainer = new Trainer();
-        trainer.setFirstName(dto.getFirstName());
-        trainer.setLastName(dto.getLastName());
-        trainer.setActive(true);
+        log.debug("Creating trainer for firstName={}, lastName={}", dto.getFirstName(), dto.getLastName());
 
         String base = dto.getFirstName() + "." + dto.getLastName();
         List<String> existingUsernames = trainerRepository.findUsernamesStartingWith(base);
 
         TrainingType trainingType = trainingTypeRepository.findById(dto.getTrainingTypeId())
-                .orElseThrow(() -> new EntityNotFoundException(
-                        "Training type not found with id: " + dto.getTrainingTypeId()));
+                .orElseThrow(() -> {
+                    log.warn("Training type not found: id={}", dto.getTrainingTypeId());
+                    return new EntityNotFoundException("Training type not found with id: " + dto.getTrainingTypeId());
+                });
 
+        Trainer trainer = new Trainer();
+        trainer.setFirstName(dto.getFirstName());
+        trainer.setLastName(dto.getLastName());
+        trainer.setActive(true);
         trainer.setSpecialization(trainingType);
         trainer.setUsername(UsernameGenerator.generate(
                 trainer.getFirstName(), trainer.getLastName(), existingUsernames));
         trainer.setPassword(PasswordGenerator.generate());
 
         trainerRepository.save(trainer);
+
+        log.info("Trainer created with username='{}'", trainer.getUsername());
         return trainerMapper.toCreateResponseDto(trainer);
     }
 
@@ -77,8 +84,15 @@ public class TrainerServiceImpl implements TrainerService {
     @Transactional(readOnly = true)
     @PreAuthorize("#username == authentication.name")
     public TrainerResponseDto getByUsername(String username) {
+        log.debug("Fetching trainer by username='{}'", username);
+
         Trainer trainer = trainerRepository.findByUsername(username)
-                .orElseThrow(() -> new EntityNotFoundException("Trainer not found: " + username));
+                .orElseThrow(() -> {
+                    log.warn("Trainer not found: username='{}'", username);
+                    return new EntityNotFoundException("Trainer not found: " + username);
+                });
+
+        log.debug("Trainer found: username='{}'", username);
         return trainerMapper.toResponseDto(trainer);
     }
 
@@ -86,11 +100,19 @@ public class TrainerServiceImpl implements TrainerService {
     @Transactional
     @PreAuthorize("#dto.username == authentication.name")
     public TrainerUpdateResponseDto update(TrainerUpdateRequestDto dto) {
+        log.debug("Updating trainer username='{}'", dto.getUsername());
+
         Trainer trainer = trainerRepository.findByUsername(dto.getUsername())
-                .orElseThrow(() -> new EntityNotFoundException("Trainer not found: " + dto.getUsername()));
+                .orElseThrow(() -> {
+                    log.warn("Trainer not found for update: username='{}'", dto.getUsername());
+                    return new EntityNotFoundException("Trainer not found: " + dto.getUsername());
+                });
+
         trainer.setFirstName(dto.getFirstName());
         trainer.setLastName(dto.getLastName());
         trainerRepository.update(trainer);
+
+        log.info("Trainer updated: username='{}'", dto.getUsername());
         return trainerMapper.toUpdateResponseDto(trainer);
     }
 
@@ -98,8 +120,12 @@ public class TrainerServiceImpl implements TrainerService {
     @Transactional(readOnly = true)
     @PreAuthorize("hasRole('TRAINER') or (hasRole('TRAINEE') and #username == authentication.name)")
     public List<TrainerSummaryDto> getUnassignedActiveTrainersByTraineeUsername(String username) {
-        List<Trainer> trainers =
-                trainerRepository.findUnassignedActiveTrainersByTraineeUsername(username);
+        log.debug("Fetching unassigned active trainers for trainee username='{}'", username);
+
+        List<Trainer> trainers = trainerRepository.findUnassignedActiveTrainersByTraineeUsername(username);
+
+        log.debug("Found {} unassigned active trainers for username='{}'", trainers.size(), username);
+
         return trainerMapper.toUpdateResponseDtoList(trainers)
                 .stream()
                 .map(t -> {
@@ -116,18 +142,27 @@ public class TrainerServiceImpl implements TrainerService {
     @Transactional(readOnly = true)
     @PreAuthorize("#dto.username == authentication.name")
     public List<TrainingResponseDto> getTrainerTrainingsByFilter(TrainerTrainingFilterDto dto) {
+        log.debug("Fetching trainings for trainer username='{}', filter={}", dto.getUsername(), dto);
+
         TrainerTrainingsRequestDto repoFilter = new TrainerTrainingsRequestDto();
         repoFilter.setUsername(dto.getUsername());
         repoFilter.setPeriodFrom(dto.getFromDate());
         repoFilter.setPeriodTo(dto.getToDate());
         repoFilter.setTraineeName(dto.getTraineeName());
-        return trainingMapper.toResponseDtoList(trainingRepository.findByTrainerFilter(repoFilter));
+
+        List<TrainingResponseDto> result = trainingMapper.toResponseDtoList(
+                trainingRepository.findByTrainerFilter(repoFilter));
+
+        log.debug("Found {} trainings for trainer username='{}'", result.size(), dto.getUsername());
+        return result;
     }
 
     @Override
     @Transactional
     @PreAuthorize("#username == authentication.name")
     public void toggleStatus(String username) {
+        log.debug("Toggling status for trainer username='{}'", username);
         trainerRepository.toggleStatus(username);
+        log.info("Trainer status toggled: username='{}'", username);
     }
 }

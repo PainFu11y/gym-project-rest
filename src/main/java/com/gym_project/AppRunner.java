@@ -4,9 +4,9 @@ import com.gym_project.config.ApplicationConfig;
 import com.gym_project.config.SwaggerConfig;
 import com.gym_project.config.WebMvcConfig;
 import org.apache.catalina.Context;
+import org.apache.catalina.startup.Tomcat;
 import org.apache.tomcat.util.descriptor.web.FilterDef;
 import org.apache.tomcat.util.descriptor.web.FilterMap;
-import org.apache.catalina.startup.Tomcat;
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
 import org.springframework.web.filter.DelegatingFilterProxy;
 import org.springframework.web.servlet.DispatcherServlet;
@@ -38,20 +38,25 @@ public class AppRunner {
                 .setLoadOnStartup(1);
         context.addServletMappingDecoded("/", "dispatcher");
 
+        addFilter(context, "transactionIdFilter", 1);
 
-        FilterDef filterDef = new FilterDef();
-        filterDef.setFilterName("sessionAuthFilter");
-        filterDef.setFilter(new DelegatingFilterProxy("sessionAuthFilter"));
-        context.addFilterDef(filterDef);
-
-        FilterMap filterMap = new FilterMap();
-        filterMap.setFilterName("sessionAuthFilter");
-        filterMap.addURLPattern("/*");
-        context.addFilterMap(filterMap);
+        addFilter(context, "sessionAuthFilter", 2);
 
         System.out.println("Starting server at http://localhost:" + port);
 
         tomcat.start();
         tomcat.getServer().await();
+    }
+
+    private static void addFilter(Context context, String beanName, int order) {
+        FilterDef filterDef = new FilterDef();
+        filterDef.setFilterName(beanName);
+        filterDef.setFilter(new DelegatingFilterProxy(beanName));
+        context.addFilterDef(filterDef);
+
+        FilterMap filterMap = new FilterMap();
+        filterMap.setFilterName(beanName);
+        filterMap.addURLPattern("/*");
+        context.addFilterMap(filterMap);
     }
 }
