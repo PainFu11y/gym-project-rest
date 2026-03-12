@@ -96,7 +96,7 @@ public class TrainerServiceImpl implements TrainerService {
 
     @Override
     @Transactional(readOnly = true)
-    @PreAuthorize("hasRole('TRAINER')")
+    @PreAuthorize("hasRole('TRAINER') or (hasRole('TRAINEE') and #username == authentication.name)")
     public List<TrainerSummaryDto> getUnassignedActiveTrainersByTraineeUsername(String username) {
         List<Trainer> trainers =
                 trainerRepository.findUnassignedActiveTrainersByTraineeUsername(username);
