@@ -17,11 +17,7 @@ import java.util.Properties;
 @Configuration
 @EnableTransactionManagement
 @PropertySource("classpath:/application.properties")
-@ComponentScan(basePackages = "com.gym_project",
-        excludeFilters = @ComponentScan.Filter(
-                type = FilterType.REGEX,
-                pattern = "com\\.gym_project\\.security\\..*"
-        )
+@ComponentScan(basePackages = "com.gym_project"
 )
 public class ApplicationConfig {
 
