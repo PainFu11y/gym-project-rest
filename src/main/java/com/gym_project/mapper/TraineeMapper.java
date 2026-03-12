@@ -21,8 +21,8 @@ public interface TraineeMapper {
 
     TraineeMapper INSTANCE = Mappers.getMapper(TraineeMapper.class);
 
-    @Mapping(target = "active", source = "isActive")
-    @Mapping(target = "trainerUsernames", source = "trainers", qualifiedByName = "mapTrainerUsernames")
+    @Mapping(target = "active", source = "active")
+    @Mapping(target = "trainers", source = "trainers", qualifiedByName = "mapTrainerSummary")
     TraineeResponseDto toResponseDto(Trainee trainee);
 
     List<TraineeResponseDto> toResponseDtoList(List<Trainee> trainees);
@@ -77,6 +77,6 @@ public interface TraineeMapper {
     @Mapping(target = "lastName", source = "lastName")
     @Mapping(target = "dateOfBirth", source = "dateOfBirth")
     @Mapping(target = "address", source = "address")
-    @Mapping(target = "isActive", source = "active")
+    @Mapping(target = "active", source = "active")
     void updateEntity(TraineeUpdateRequestDto dto, @MappingTarget Trainee trainee);
 }

@@ -3,10 +3,7 @@ package com.gym_project.config;
 import javax.persistence.EntityManagerFactory;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.PropertySource;
+import org.springframework.context.annotation.*;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
@@ -20,7 +17,12 @@ import java.util.Properties;
 @Configuration
 @EnableTransactionManagement
 @PropertySource("classpath:/application.properties")
-@ComponentScan("com.gym_project")
+@ComponentScan(basePackages = "com.gym_project",
+        excludeFilters = @ComponentScan.Filter(
+                type = FilterType.REGEX,
+                pattern = "com\\.gym_project\\.security\\..*"
+        )
+)
 public class ApplicationConfig {
 
     @Value("${spring.datasource.driver-class-name}")

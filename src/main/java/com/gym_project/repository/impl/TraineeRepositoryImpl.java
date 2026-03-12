@@ -69,7 +69,7 @@ public class TraineeRepositoryImpl implements TraineeRepository {
     @Transactional(readOnly = true)
     public List<String> findUsernamesStartingWith(String prefix) {
         return entityManager.createQuery(
-                        "SELECT t.username FROM Trainee t WHERE t.username LIKE :prefix",
+                        "SELECT u.username FROM User u WHERE u.username LIKE :prefix",
                         String.class)
                 .setParameter("prefix", prefix + "%")
                 .getResultList();
