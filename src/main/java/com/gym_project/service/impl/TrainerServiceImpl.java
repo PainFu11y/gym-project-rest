@@ -12,13 +12,13 @@ import com.gym_project.dto.update.response.TrainerUpdateResponseDto;
 import com.gym_project.entity.Trainer;
 import com.gym_project.entity.Training;
 import com.gym_project.entity.TrainingType;
-import com.gym_project.repository.TraineeRepository;
+import com.gym_project.exception.EntityNotFoundException;
+import com.gym_project.mapper.TrainerMapper;
+import com.gym_project.mapper.TrainingMapper;
 import com.gym_project.repository.TrainerRepository;
 import com.gym_project.repository.TrainingRepository;
 import com.gym_project.repository.TrainingTypeRepository;
 import com.gym_project.service.TrainerService;
-import com.gym_project.mapper.TrainerMapper;
-import com.gym_project.mapper.TrainingMapper;
 import com.gym_project.utils.PasswordGenerator;
 import com.gym_project.utils.UsernameGenerator;
 import org.springframework.stereotype.Service;
@@ -35,11 +35,13 @@ public class TrainerServiceImpl implements TrainerService {
     private final TrainerMapper trainerMapper;
     private final TrainingMapper trainingMapper;
 
-    public TrainerServiceImpl(TrainerRepository trainerRepository,
-                              TrainerMapper trainerMapper,
-                              TrainingMapper trainingMapper,
-                              TrainingTypeRepository trainingTypeRepository,
-                              TrainingRepository trainingRepository) {
+    public TrainerServiceImpl(
+            TrainerRepository trainerRepository,
+            TrainerMapper trainerMapper,
+            TrainingMapper trainingMapper,
+            TrainingTypeRepository trainingTypeRepository,
+            TrainingRepository trainingRepository
+    ) {
         this.trainerRepository = trainerRepository;
         this.trainerMapper = trainerMapper;
         this.trainingMapper = trainingMapper;
@@ -59,11 +61,12 @@ public class TrainerServiceImpl implements TrainerService {
         List<String> existingUsernames = trainerRepository.findUsernamesStartingWith(base);
 
         TrainingType trainingType = trainingTypeRepository.findById(dto.getTrainingTypeId())
-                .orElseThrow(() -> new RuntimeException(
-                        "Training type not found with id: " + dto.getTrainingTypeId()
-                ));
+                .orElseThrow(() -> new EntityNotFoundException(
+                        "Training type not found with id: " + dto.getTrainingTypeId()));
+
         trainer.setSpecialization(trainingType);
-        trainer.setUsername(UsernameGenerator.generate(trainer.getFirstName(), trainer.getLastName(), existingUsernames));
+        trainer.setUsername(UsernameGenerator.generate(
+                trainer.getFirstName(), trainer.getLastName(), existingUsernames));
         trainer.setPassword(PasswordGenerator.generate());
 
         trainerRepository.save(trainer);
@@ -74,7 +77,7 @@ public class TrainerServiceImpl implements TrainerService {
     @Transactional(readOnly = true)
     public TrainerResponseDto getByUsername(String username) {
         Trainer trainer = trainerRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("Trainer not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Trainer not found: " + username));
         return trainerMapper.toResponseDto(trainer);
     }
 
@@ -82,7 +85,7 @@ public class TrainerServiceImpl implements TrainerService {
     @Transactional
     public TrainerUpdateResponseDto update(TrainerUpdateRequestDto dto) {
         Trainer trainer = trainerRepository.findByUsername(dto.getUsername())
-                .orElseThrow(() -> new RuntimeException("Trainer not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Trainer not found: " + dto.getUsername()));
         trainer.setFirstName(dto.getFirstName());
         trainer.setLastName(dto.getLastName());
         trainerRepository.update(trainer);
@@ -92,7 +95,8 @@ public class TrainerServiceImpl implements TrainerService {
     @Override
     @Transactional(readOnly = true)
     public List<TrainerSummaryDto> getUnassignedActiveTrainersByTraineeUsername(String username) {
-        List<Trainer> trainers = trainerRepository.findUnassignedActiveTrainersByTraineeUsername(username);
+        List<Trainer> trainers =
+                trainerRepository.findUnassignedActiveTrainersByTraineeUsername(username);
         return trainerMapper.toUpdateResponseDtoList(trainers)
                 .stream()
                 .map(t -> {
@@ -113,10 +117,7 @@ public class TrainerServiceImpl implements TrainerService {
         repoFilter.setPeriodFrom(dto.getFromDate());
         repoFilter.setPeriodTo(dto.getToDate());
         repoFilter.setTraineeName(dto.getTraineeName());
-
-        List<Training> trainings = trainingRepository.findByTrainerFilter(repoFilter);
-
-        return trainingMapper.toResponseDtoList(trainings);
+        return trainingMapper.toResponseDtoList(trainingRepository.findByTrainerFilter(repoFilter));
     }
 
     @Override
