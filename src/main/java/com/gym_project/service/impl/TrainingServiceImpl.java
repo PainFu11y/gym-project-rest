@@ -9,6 +9,7 @@ import com.gym_project.repository.TraineeRepository;
 import com.gym_project.repository.TrainerRepository;
 import com.gym_project.repository.TrainingRepository;
 import com.gym_project.service.TrainingService;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -32,6 +33,7 @@ public class TrainingServiceImpl implements TrainingService {
 
     @Override
     @Transactional
+    @PreAuthorize("hasRole('TRAINER') and #dto.trainerUsername == authentication.name")
     public void create(TrainingCreateRequestDto dto) {
         Trainee trainee = traineeRepository.findByUsername(dto.getTraineeUsername())
                 .orElseThrow(() -> new EntityNotFoundException(
@@ -50,5 +52,7 @@ public class TrainingServiceImpl implements TrainingService {
         training.setTrainingType(trainer.getSpecialization());
 
         trainingRepository.save(training);
+
+        trainer.getTrainees().add(trainee);
     }
 }

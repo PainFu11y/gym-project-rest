@@ -10,7 +10,6 @@ import com.gym_project.dto.response.TrainingResponseDto;
 import com.gym_project.dto.update.request.TrainerUpdateRequestDto;
 import com.gym_project.dto.update.response.TrainerUpdateResponseDto;
 import com.gym_project.entity.Trainer;
-import com.gym_project.entity.Training;
 import com.gym_project.entity.TrainingType;
 import com.gym_project.exception.EntityNotFoundException;
 import com.gym_project.mapper.TrainerMapper;
@@ -21,6 +20,7 @@ import com.gym_project.repository.TrainingTypeRepository;
 import com.gym_project.service.TrainerService;
 import com.gym_project.utils.PasswordGenerator;
 import com.gym_project.utils.UsernameGenerator;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -75,6 +75,7 @@ public class TrainerServiceImpl implements TrainerService {
 
     @Override
     @Transactional(readOnly = true)
+    @PreAuthorize("#username == authentication.name")
     public TrainerResponseDto getByUsername(String username) {
         Trainer trainer = trainerRepository.findByUsername(username)
                 .orElseThrow(() -> new EntityNotFoundException("Trainer not found: " + username));
@@ -83,6 +84,7 @@ public class TrainerServiceImpl implements TrainerService {
 
     @Override
     @Transactional
+    @PreAuthorize("#dto.username == authentication.name")
     public TrainerUpdateResponseDto update(TrainerUpdateRequestDto dto) {
         Trainer trainer = trainerRepository.findByUsername(dto.getUsername())
                 .orElseThrow(() -> new EntityNotFoundException("Trainer not found: " + dto.getUsername()));
@@ -94,6 +96,7 @@ public class TrainerServiceImpl implements TrainerService {
 
     @Override
     @Transactional(readOnly = true)
+    @PreAuthorize("hasRole('TRAINER') or (hasRole('TRAINEE') and #username == authentication.name)")
     public List<TrainerSummaryDto> getUnassignedActiveTrainersByTraineeUsername(String username) {
         List<Trainer> trainers =
                 trainerRepository.findUnassignedActiveTrainersByTraineeUsername(username);
@@ -111,6 +114,7 @@ public class TrainerServiceImpl implements TrainerService {
 
     @Override
     @Transactional(readOnly = true)
+    @PreAuthorize("#dto.username == authentication.name")
     public List<TrainingResponseDto> getTrainerTrainingsByFilter(TrainerTrainingFilterDto dto) {
         TrainerTrainingsRequestDto repoFilter = new TrainerTrainingsRequestDto();
         repoFilter.setUsername(dto.getUsername());
@@ -122,6 +126,7 @@ public class TrainerServiceImpl implements TrainerService {
 
     @Override
     @Transactional
+    @PreAuthorize("#username == authentication.name")
     public void toggleStatus(String username) {
         trainerRepository.toggleStatus(username);
     }

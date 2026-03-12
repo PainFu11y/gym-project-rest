@@ -151,8 +151,11 @@ public class TraineeServiceImpl implements TraineeService {
                 .toList();
 
         List<Trainer> trainers = trainerRepository.findTrainersByUsernames(trainerUsernames);
-        trainee.setTrainers(new HashSet<>(trainers));
-        traineeRepository.update(trainee);
+
+        trainerRepository.findAll()
+                .forEach(t -> t.getTrainees().remove(trainee));
+
+        trainers.forEach(t -> t.getTrainees().add(trainee));
 
         return trainers.stream()
                 .map(tr -> new TrainerSummaryDto(
