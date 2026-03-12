@@ -13,6 +13,8 @@ import com.gym_project.dto.update.request.UpdateTraineeTrainerListRequestDto;
 import com.gym_project.entity.Trainee;
 import com.gym_project.entity.Trainer;
 import com.gym_project.entity.Training;
+import com.gym_project.exception.EntityNotFoundException;
+import com.gym_project.exception.InvalidCredentialsException;
 import com.gym_project.mapper.TraineeMapper;
 import com.gym_project.mapper.TrainerMapper;
 import com.gym_project.mapper.TrainingMapper;
@@ -32,10 +34,10 @@ import java.util.stream.Collectors;
 
 @Service
 public class TraineeServiceImpl implements TraineeService {
+
     private final TraineeRepository traineeRepository;
     private final TrainerRepository trainerRepository;
     private final TrainingRepository trainingRepository;
-
     private final TraineeMapper traineeMapper;
     private final TrainerMapper trainerMapper;
     private final TrainingMapper trainingMapper;
@@ -56,7 +58,6 @@ public class TraineeServiceImpl implements TraineeService {
         this.trainingMapper = trainingMapper;
     }
 
-
     @Override
     @Transactional
     public TraineeCreateResponseDto create(TraineeCreateRequestDto dto) {
@@ -76,26 +77,19 @@ public class TraineeServiceImpl implements TraineeService {
     @Override
     @PreAuthorize("#username == authentication.name")
     public TraineeResponseDto getByUsername(String username) {
-
         Trainee trainee = traineeRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("Trainee not found"));
-
+                .orElseThrow(() -> new EntityNotFoundException("Trainee not found: " + username));
         return traineeMapper.toResponseDto(trainee);
     }
 
     @Override
     @Transactional
-    @PreAuthorize("#username == authentication.name")
+    @PreAuthorize("#dto.username == authentication.name")
     public TraineeResponseDto update(TraineeUpdateRequestDto dto) {
-
         Trainee trainee = traineeRepository.findByUsername(dto.getUsername())
-                .orElseThrow(() -> new RuntimeException("Trainee not found"));
-
+                .orElseThrow(() -> new EntityNotFoundException("Trainee not found: " + dto.getUsername()));
         traineeMapper.updateEntity(dto, trainee);
-
-        Trainee updated = traineeRepository.update(trainee);
-
-        return traineeMapper.toResponseDto(updated);
+        return traineeMapper.toResponseDto(traineeRepository.update(trainee));
     }
 
     @Override
@@ -114,22 +108,18 @@ public class TraineeServiceImpl implements TraineeService {
 
     @Override
     public List<TrainingResponseDto> getTraineeTrainings(TraineeTrainingsFilterRequestDto filter) {
-
         List<Training> trainings = trainingRepository.findByTraineeFilter(filter);
-
         return trainingMapper.toResponseDtoList(trainings);
     }
 
-
     @Override
-    @PreAuthorize("#username == authentication.name")
+    @PreAuthorize("#dto.username == authentication.name")
     public TraineeResponseDto validateCredentials(LoginRequestDto dto) {
-
         Trainee trainee = traineeRepository.findByUsername(dto.getUsername())
-                .orElseThrow(() -> new RuntimeException("Invalid credentials"));
+                .orElseThrow(InvalidCredentialsException::new);
 
         if (!trainee.getPassword().equals(dto.getPassword())) {
-            throw new RuntimeException("Invalid credentials");
+            throw new InvalidCredentialsException();
         }
 
         return traineeMapper.toResponseDto(trainee);
@@ -138,23 +128,20 @@ public class TraineeServiceImpl implements TraineeService {
     @Override
     @PreAuthorize("#username == authentication.name")
     public List<TrainerResponseDto> getTrainers(String username) {
-
         List<Trainer> trainers = trainerRepository
                 .findTraineesByTrainerUsername(username)
                 .stream()
                 .flatMap(t -> t.getTrainers().stream())
                 .collect(Collectors.toList());
-
         return trainerMapper.toResponseDtoList(trainers);
     }
 
     @Override
     @Transactional
-    @PreAuthorize("#username == authentication.name")
+    @PreAuthorize("#dto.traineeUsername == authentication.name")
     public List<TrainerSummaryDto> updateTrainerList(UpdateTraineeTrainerListRequestDto dto) {
-
         Trainee trainee = traineeRepository.findByUsername(dto.getTraineeUsername())
-                .orElseThrow(() -> new RuntimeException("Trainee not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Trainee not found: " + dto.getTraineeUsername()));
 
         List<String> trainerUsernames = dto.getTrainers()
                 .stream()
@@ -162,9 +149,7 @@ public class TraineeServiceImpl implements TraineeService {
                 .toList();
 
         List<Trainer> trainers = trainerRepository.findTrainersByUsernames(trainerUsernames);
-
         trainee.setTrainers(Set.copyOf(trainers));
-
         traineeRepository.update(trainee);
 
         return trainers.stream()
