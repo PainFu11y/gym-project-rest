@@ -2,9 +2,11 @@ package com.gym_project.security;
 
 import com.gym_project.entity.Trainee;
 import com.gym_project.entity.Trainer;
+import com.gym_project.exception.InvalidCredentialsException;
 import com.gym_project.repository.TraineeRepository;
 import com.gym_project.repository.TrainerRepository;
 import org.springframework.stereotype.Service;
+
 import java.util.Optional;
 
 @Service
@@ -25,7 +27,6 @@ public class LoginService {
     }
 
     public void login(String username, String password) {
-
         Optional<Trainer> trainer =
                 trainerRepository.findByUsernameAndPassword(username, password);
 
@@ -34,19 +35,17 @@ public class LoginService {
             return;
         }
 
-        Optional<Trainee> trainee =
-                traineeRepository.findByUsername(username);
+        Optional<Trainee> trainee = traineeRepository.findByUsername(username);
 
         if (trainee.isPresent() && trainee.get().getPassword().equals(password)) {
             authService.authenticate(username, Role.TRAINEE);
             return;
         }
 
-        throw new RuntimeException("Invalid username or password");
+        throw new InvalidCredentialsException();
     }
 
     public void changePassword(String username, String oldPassword, String newPassword) {
-
         Optional<Trainer> trainer =
                 trainerRepository.findByUsernameAndPassword(username, oldPassword);
 
@@ -55,14 +54,13 @@ public class LoginService {
             return;
         }
 
-        Optional<Trainee> trainee =
-                traineeRepository.findByUsername(username);
+        Optional<Trainee> trainee = traineeRepository.findByUsername(username);
 
         if (trainee.isPresent() && trainee.get().getPassword().equals(oldPassword)) {
             traineeRepository.changePassword(username, newPassword);
             return;
         }
 
-        throw new RuntimeException("Invalid username or password");
+        throw new InvalidCredentialsException();
     }
 }
