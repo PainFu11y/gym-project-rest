@@ -9,11 +9,13 @@ import com.gym_project.repository.TraineeRepository;
 import com.gym_project.repository.TrainerRepository;
 import com.gym_project.repository.TrainingRepository;
 import com.gym_project.service.TrainingService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 
+@Slf4j
 @Service
 public class TrainingServiceImpl implements TrainingService {
 
@@ -35,13 +37,20 @@ public class TrainingServiceImpl implements TrainingService {
     @Transactional
     @PreAuthorize("hasRole('TRAINER') and #dto.trainerUsername == authentication.name")
     public void create(TrainingCreateRequestDto dto) {
+        log.debug("Creating training '{}' for trainee='{}' by trainer='{}'",
+                dto.getTrainingName(), dto.getTraineeUsername(), dto.getTrainerUsername());
+
         Trainee trainee = traineeRepository.findByUsername(dto.getTraineeUsername())
-                .orElseThrow(() -> new EntityNotFoundException(
-                        "Trainee not found: " + dto.getTraineeUsername()));
+                .orElseThrow(() -> {
+                    log.warn("Trainee not found: username='{}'", dto.getTraineeUsername());
+                    return new EntityNotFoundException("Trainee not found: " + dto.getTraineeUsername());
+                });
 
         Trainer trainer = trainerRepository.findByUsername(dto.getTrainerUsername())
-                .orElseThrow(() -> new EntityNotFoundException(
-                        "Trainer not found: " + dto.getTrainerUsername()));
+                .orElseThrow(() -> {
+                    log.warn("Trainer not found: username='{}'", dto.getTrainerUsername());
+                    return new EntityNotFoundException("Trainer not found: " + dto.getTrainerUsername());
+                });
 
         Training training = new Training();
         training.setTrainingName(dto.getTrainingName());
@@ -52,7 +61,10 @@ public class TrainingServiceImpl implements TrainingService {
         training.setTrainingType(trainer.getSpecialization());
 
         trainingRepository.save(training);
-
         trainer.getTrainees().add(trainee);
+
+        log.info("Training created: name='{}', trainee='{}', trainer='{}', date={}, duration={}",
+                dto.getTrainingName(), dto.getTraineeUsername(), dto.getTrainerUsername(),
+                dto.getTrainingDate(), dto.getTrainingDuration());
     }
 }
