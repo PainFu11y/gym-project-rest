@@ -4,8 +4,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -33,9 +31,9 @@ public class GlobalExceptionHandler {
     }
 
 
-    @ExceptionHandler(AuthenticationCredentialsNotFoundException.class)
+    @ExceptionHandler(UnauthorizedException.class)
     public ResponseEntity<ErrorResponseDto> handleNotAuthenticated(
-            AuthenticationCredentialsNotFoundException ex) {
+            UnauthorizedException ex) {
         log.warn("Unauthenticated access attempt");
         return build(401, "Authentication required — please log in first");
     }

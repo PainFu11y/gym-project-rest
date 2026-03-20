@@ -13,6 +13,7 @@ import com.gym_project.dto.update.request.UpdateTraineeTrainerListRequestDto;
 import com.gym_project.entity.Trainee;
 import com.gym_project.entity.Trainer;
 import com.gym_project.entity.Training;
+import com.gym_project.exception.AccessDeniedException;
 import com.gym_project.exception.EntityNotFoundException;
 import com.gym_project.exception.InvalidCredentialsException;
 import com.gym_project.mapper.TraineeMapper;
@@ -21,11 +22,12 @@ import com.gym_project.mapper.TrainingMapper;
 import com.gym_project.repository.TraineeRepository;
 import com.gym_project.repository.TrainerRepository;
 import com.gym_project.repository.TrainingRepository;
+import com.gym_project.security.AuthContext;
+import com.gym_project.security.PreAuthorize;
 import com.gym_project.service.TraineeService;
 import com.gym_project.utils.PasswordGenerator;
 import com.gym_project.utils.UsernameGenerator;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -126,6 +128,10 @@ public class TraineeServiceImpl implements TraineeService {
     @Transactional
     @PreAuthorize("#username == authentication.name")
     public void toggleStatus(String username) {
+        String authenticatedUser = AuthContext.getUsername();
+        if(!authenticatedUser.equals(username)){
+            throw new AccessDeniedException("U can't change another user's status");
+        }
         log.debug("Toggling status for trainee username='{}'", username);
         traineeRepository.toggleStatus(username);
         log.info("Trainee status toggled: username='{}'", username);
@@ -141,7 +147,6 @@ public class TraineeServiceImpl implements TraineeService {
     }
 
     @Override
-    @PreAuthorize("#dto.username == authentication.name")
     public TraineeResponseDto validateCredentials(LoginRequestDto dto) {
         log.debug("Validating credentials for username='{}'", dto.getUsername());
 

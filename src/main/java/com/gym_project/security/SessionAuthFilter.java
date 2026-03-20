@@ -1,7 +1,6 @@
 package com.gym_project.security;
 
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -12,10 +11,12 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
 
+@Slf4j
 @Component("sessionAuthFilter")
 public class SessionAuthFilter extends OncePerRequestFilter {
 
-    private static final String AUTH_SESSION_KEY = "SPRING_SECURITY_AUTHENTICATION";
+    private static final String SESSION_USERNAME = "AUTH_USERNAME";
+    private static final String SESSION_ROLE     = "AUTH_ROLE";
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
@@ -23,19 +24,57 @@ public class SessionAuthFilter extends OncePerRequestFilter {
                                     FilterChain filterChain)
             throws ServletException, IOException {
 
+        String path   = request.getRequestURI();
+        String method = request.getMethod();
+
+        if (isPublic(path, method)) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         HttpSession session = request.getSession(false);
         if (session != null) {
-            Authentication auth = (Authentication) session.getAttribute(AUTH_SESSION_KEY);
-            if (auth != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-                SecurityContextHolder.getContext().setAuthentication(auth);
+            String username = (String) session.getAttribute(SESSION_USERNAME);
+            Role   role     = (Role)   session.getAttribute(SESSION_ROLE);
+            if (username != null && role != null) {
+                AuthContext.set(username, role);
             }
         }
 
-        filterChain.doFilter(request, response);
-
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth != null && auth.isAuthenticated()) {
-            request.getSession(true).setAttribute(AUTH_SESSION_KEY, auth);
+        if (!AuthContext.isAuthenticated()) {
+            log.warn("Unauthenticated request to {} {}", method, path);
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Authentication required");
+            return;
         }
+
+        try {
+            filterChain.doFilter(request, response);
+
+            if (AuthContext.isAuthenticated()) {
+                HttpSession s = request.getSession(true);
+                s.setAttribute(SESSION_USERNAME, AuthContext.getUsername());
+                s.setAttribute(SESSION_ROLE,     AuthContext.getRole());
+            }
+        } finally {
+            AuthContext.clear();
+        }
+    }
+
+    private boolean isPublic(String path, String method) {
+        if (path.equals("/api/auth/login"))          return true;
+        if (path.equals("/api/auth/change-password")) return true;
+
+
+        if ("POST".equalsIgnoreCase(method) && path.equals("/api/trainees")) return true;
+        if ("POST".equalsIgnoreCase(method) && path.equals("/api/trainers"))  return true;
+
+
+        if (path.startsWith("/swagger"))      return true;
+        if (path.startsWith("/webjars"))      return true;
+        if (path.startsWith("/v2/api-docs"))  return true;
+        if (path.startsWith("/csrf"))         return true;
+        if (path.equals("/favicon.ico"))      return true;
+
+        return false;
     }
 }
