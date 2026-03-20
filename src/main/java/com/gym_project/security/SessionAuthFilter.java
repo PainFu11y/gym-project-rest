@@ -27,7 +27,10 @@ public class SessionAuthFilter extends OncePerRequestFilter {
         String path   = request.getRequestURI();
         String method = request.getMethod();
 
+        log.debug("Incoming request: {} {}", method, path);
+
         if (isPublic(path, method)) {
+            log.debug("Public path, skipping auth: {}", path);
             filterChain.doFilter(request, response);
             return;
         }
@@ -61,19 +64,19 @@ public class SessionAuthFilter extends OncePerRequestFilter {
     }
 
     private boolean isPublic(String path, String method) {
-        if (path.equals("/api/auth/login"))          return true;
+        if (path.equals("/api/auth/login"))           return true;
         if (path.equals("/api/auth/change-password")) return true;
-
 
         if ("POST".equalsIgnoreCase(method) && path.equals("/api/trainees")) return true;
         if ("POST".equalsIgnoreCase(method) && path.equals("/api/trainers"))  return true;
 
+        if (path.equals("/swagger-ui.html"))          return true;
+        if (path.startsWith("/swagger-resources"))    return true;
+        if (path.startsWith("/webjars/"))             return true;
+        if (path.startsWith("/v2/api-docs"))          return true;
+        if (path.startsWith("/configuration/"))       return true;
 
-        if (path.startsWith("/swagger"))      return true;
-        if (path.startsWith("/webjars"))      return true;
-        if (path.startsWith("/v2/api-docs"))  return true;
-        if (path.startsWith("/csrf"))         return true;
-        if (path.equals("/favicon.ico"))      return true;
+        if (path.equals("/favicon.ico"))              return true;
 
         return false;
     }

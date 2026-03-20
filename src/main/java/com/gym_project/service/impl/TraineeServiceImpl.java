@@ -101,7 +101,10 @@ public class TraineeServiceImpl implements TraineeService {
     @PreAuthorize("#dto.username == authentication.name")
     public TraineeResponseDto update(TraineeUpdateRequestDto dto) {
         log.debug("Updating trainee username='{}'", dto.getUsername());
-
+        String authenticatedUser = AuthContext.getUsername();
+        if(!authenticatedUser.equals(dto.getUsername())){
+            throw new AccessDeniedException("The user is authenticated but not authorized to perform that action on another user's resource.");
+        }
         Trainee trainee = traineeRepository.findByUsername(dto.getUsername())
                 .orElseThrow(() -> {
                     log.warn("Trainee not found for update: username='{}'", dto.getUsername());
@@ -120,6 +123,10 @@ public class TraineeServiceImpl implements TraineeService {
     @PreAuthorize("#username == authentication.name")
     public void deleteByUsername(String username) {
         log.debug("Deleting trainee username='{}'", username);
+        String authenticatedUser = AuthContext.getUsername();
+        if(!authenticatedUser.equals(username)){
+            throw new AccessDeniedException("The user is authenticated but not authorized to perform that action on another user's resource.");
+        }
         traineeRepository.deleteByUsername(username);
         log.info("Trainee deleted: username='{}'", username);
     }
@@ -130,7 +137,7 @@ public class TraineeServiceImpl implements TraineeService {
     public void toggleStatus(String username) {
         String authenticatedUser = AuthContext.getUsername();
         if(!authenticatedUser.equals(username)){
-            throw new AccessDeniedException("U can't change another user's status");
+            throw new AccessDeniedException("The user is authenticated but not authorized to perform that action on another user's resource.");
         }
         log.debug("Toggling status for trainee username='{}'", username);
         traineeRepository.toggleStatus(username);
@@ -141,6 +148,10 @@ public class TraineeServiceImpl implements TraineeService {
     @Transactional
     public List<TrainingResponseDto> getTraineeTrainings(TraineeTrainingsFilterRequestDto filter) {
         log.debug("Fetching trainings for trainee username='{}', filter={}", filter.getUsername(), filter);
+        String authenticatedUser = AuthContext.getUsername();
+        if(!authenticatedUser.equals(filter.getUsername())){
+            throw new AccessDeniedException("The user is authenticated but not authorized to perform that action on another user's resource.");
+        }
         List<Training> trainings = trainingRepository.findByTraineeFilter(filter);
         log.debug("Found {} trainings for username='{}'", trainings.size(), filter.getUsername());
         return trainingMapper.toResponseDtoList(trainings);
