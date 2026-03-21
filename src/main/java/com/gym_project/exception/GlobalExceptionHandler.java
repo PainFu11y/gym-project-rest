@@ -45,6 +45,12 @@ public class GlobalExceptionHandler {
         return build(403, "Access denied — you are not allowed to perform this action");
     }
 
+    @ExceptionHandler(ForbiddenOperationException.class)
+    public ResponseEntity<ErrorResponseDto> handleForbiddenOperation(ForbiddenOperationException ex) {
+        log.warn("Forbidden operation: {}", ex.getMessage());
+        return build(ex.getStatus(), ex.getMessage());
+    }
+
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponseDto> handleValidation(MethodArgumentNotValidException ex) {
