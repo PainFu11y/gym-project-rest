@@ -15,6 +15,7 @@ import com.gym_project.entity.Trainer;
 import com.gym_project.entity.Training;
 import com.gym_project.exception.AccessDeniedException;
 import com.gym_project.exception.EntityNotFoundException;
+import com.gym_project.exception.ForbiddenOperationException;
 import com.gym_project.exception.InvalidCredentialsException;
 import com.gym_project.mapper.TraineeMapper;
 import com.gym_project.mapper.TrainerMapper;
@@ -136,8 +137,8 @@ public class TraineeServiceImpl implements TraineeService {
     @PreAuthorize("#username == authentication.name")
     public void toggleStatus(String username) {
         String authenticatedUser = AuthContext.getUsername();
-        if(!authenticatedUser.equals(username)){
-            throw new AccessDeniedException("The user is authenticated but not authorized to perform that action on another user's resource.");
+        if(!authenticatedUser.equals(username) || !AuthContext.getRole().toString().equals("TRAINEE")){
+            throw new ForbiddenOperationException("The user is authenticated but not authorized to perform that action on another user's resource.");
         }
         log.debug("Toggling status for trainee username='{}'", username);
         traineeRepository.toggleStatus(username);
@@ -150,7 +151,7 @@ public class TraineeServiceImpl implements TraineeService {
         log.debug("Fetching trainings for trainee username='{}', filter={}", filter.getUsername(), filter);
         String authenticatedUser = AuthContext.getUsername();
         if(!authenticatedUser.equals(filter.getUsername())){
-            throw new AccessDeniedException("The user is authenticated but not authorized to perform that action on another user's resource.");
+            throw new ForbiddenOperationException("The user is authenticated but not authorized to perform that action on another user's resource.");
         }
         List<Training> trainings = trainingRepository.findByTraineeFilter(filter);
         log.debug("Found {} trainings for username='{}'", trainings.size(), filter.getUsername());

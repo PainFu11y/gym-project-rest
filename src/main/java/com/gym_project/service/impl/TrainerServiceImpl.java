@@ -11,9 +11,8 @@ import com.gym_project.dto.update.request.TrainerUpdateRequestDto;
 import com.gym_project.dto.update.response.TrainerUpdateResponseDto;
 import com.gym_project.entity.Trainer;
 import com.gym_project.entity.TrainingType;
-import com.gym_project.exception.AccessDeniedException;
 import com.gym_project.exception.EntityNotFoundException;
-import com.gym_project.exception.InvalidCredentialsException;
+import com.gym_project.exception.ForbiddenOperationException;
 import com.gym_project.mapper.TrainerMapper;
 import com.gym_project.mapper.TrainingMapper;
 import com.gym_project.repository.TrainerRepository;
@@ -165,8 +164,8 @@ public class TrainerServiceImpl implements TrainerService {
     @PreAuthorize("#username == authentication.name")
     public void toggleStatus(String username) {
         String authenticatedUser = AuthContext.getUsername();
-        if(!authenticatedUser.equals(username)){
-            throw new AccessDeniedException("The user is authenticated but not authorized to perform that action on another user's resource.");
+        if(!authenticatedUser.equals(username) || !AuthContext.getRole().toString().equals("TRAINER")){
+            throw new ForbiddenOperationException("The user is authenticated but not authorized to perform that action on another user's resource.");
         }
         log.debug("Toggling status for trainer username='{}'", username);
         trainerRepository.toggleStatus(username);

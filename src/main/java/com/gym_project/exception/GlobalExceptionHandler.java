@@ -38,6 +38,11 @@ public class GlobalExceptionHandler {
         return build(401, "Authentication required — please log in first");
     }
 
+    @ExceptionHandler(ForbiddenOperationException.class)
+    public ResponseEntity<ErrorResponseDto> handleForbiddenOperation(ForbiddenOperationException ex) {
+        log.warn("Forbidden operation: {}", ex.getMessage());
+        return build(ex.getStatus(), ex.getMessage());
+    }
 
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<ErrorResponseDto> handleAccessDenied(AccessDeniedException ex) {
@@ -45,11 +50,6 @@ public class GlobalExceptionHandler {
         return build(403, "Access denied — you are not allowed to perform this action");
     }
 
-    @ExceptionHandler(ForbiddenOperationException.class)
-    public ResponseEntity<ErrorResponseDto> handleForbiddenOperation(ForbiddenOperationException ex) {
-        log.warn("Forbidden operation: {}", ex.getMessage());
-        return build(ex.getStatus(), ex.getMessage());
-    }
 
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

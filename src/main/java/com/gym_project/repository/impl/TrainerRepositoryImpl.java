@@ -2,6 +2,7 @@ package com.gym_project.repository.impl;
 
 import com.gym_project.entity.Trainee;
 import com.gym_project.entity.Trainer;
+import com.gym_project.exception.EntityNotFoundException;
 import com.gym_project.repository.TrainerRepository;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -130,14 +131,14 @@ public class TrainerRepositoryImpl implements TrainerRepository {
     @Override
     @Transactional
     public void toggleStatus(String username) {
-
         Trainer trainer = entityManager.createQuery(
                         "SELECT t FROM Trainer t WHERE t.username = :username", Trainer.class)
                 .setParameter("username", username)
-                .getSingleResult();
+                .getResultStream()
+                .findFirst()
+                .orElseThrow(() -> new EntityNotFoundException("Trainer not found: " + username));
 
         trainer.setActive(!trainer.isActive());
-
         entityManager.merge(trainer);
     }
 }

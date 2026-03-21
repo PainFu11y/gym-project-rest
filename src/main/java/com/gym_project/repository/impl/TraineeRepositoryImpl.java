@@ -2,6 +2,7 @@ package com.gym_project.repository.impl;
 
 import com.gym_project.entity.Trainee;
 import com.gym_project.entity.Trainer;
+import com.gym_project.exception.EntityNotFoundException;
 import com.gym_project.repository.TraineeRepository;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -94,7 +95,9 @@ public class TraineeRepositoryImpl implements TraineeRepository {
         Trainee trainee = entityManager.createQuery(
                         "SELECT t FROM Trainee t WHERE t.username = :username", Trainee.class)
                 .setParameter("username", username)
-                .getSingleResult();
+                .getResultStream()
+                .findFirst()
+                .orElseThrow(() -> new EntityNotFoundException("Trainee not found: " + username));
 
         trainee.setActive(!trainee.isActive());
 
